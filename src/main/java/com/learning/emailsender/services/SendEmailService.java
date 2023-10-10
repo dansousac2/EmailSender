@@ -6,6 +6,8 @@ import java.util.Properties;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.learning.emailsender.enums.SmtpMail;
+
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
 import jakarta.mail.Session;
@@ -20,26 +22,28 @@ public class SendEmailService {
 
 	@Value("${email.password}")
 	private String password;
-
-	public void sendEmail() throws MessagingException {
-		System.out.println(email);
-		System.out.println(password);
-
+	
+	public void sendEmail(String emailDestination[], String subject, String msgToSend) throws MessagingException {
 		Properties props = new Properties();
 		//props.put("mail.debug", "true");
-		props.put("mail.smtp.host", "smtp-mail.outlook.com");
+		props.put("mail.smtp.host", SmtpMail.MICROSOFFT.value);
 		// comando reconhecido por outros protocolos como IMAP, POP e SMTP.
 		// utilizado para transformar uma ligação não encriptada numa ligação encriptada sem a necessidade de recorrer a uma porta segura especifica.
 		props.put("mail.smtp.starttls.enable", "true");
 		
 		Session session = Session.getInstance(props, null);
-
+		
+		AddressToSend addressToSend[] = new AddressToSend [emailDestination.length];
+		for(int i = 0; i < emailDestination.length; i++) {
+			addressToSend[i] = new AddressToSend(emailDestination[i]);
+		}
+		
 		MimeMessage msg = new MimeMessage(session);
-		msg.setFrom("dansousac2@hotmail.com");
-		msg.setRecipients(Message.RecipientType.TO, "dansousac2@gmail.com");
-		msg.setSubject("JavaMail hello world example");
+		msg.setFrom(email);
+		msg.setRecipients(Message.RecipientType.TO, addressToSend);
+		msg.setSubject(subject);
+		msg.setText(msgToSend);
 		msg.setSentDate(new Date());
-		msg.setText("Hello, world!\n");
 
 		Transport.send(msg, email, password);
 	}
