@@ -1,14 +1,16 @@
 package com.learning.emailsender.controllers;
 
-import java.util.Arrays;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.learning.emailsender.dtos.SenderEmailDto;
 import com.learning.emailsender.services.SendEmailService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("api/emailsender")
@@ -18,12 +20,9 @@ public class EmailSenderController {
 	private SendEmailService emailService;
 
 	@GetMapping
-	public ResponseEntity sendEmail() {
+	public ResponseEntity sendEmail(@RequestBody @Valid SenderEmailDto dto) {
 		try {
-			String emailsList[] = {"emailsToSend@gmail.com"};
-			String subject = "Assunto X";
-			String msg = "Mensagem de teste enviada a este email";
-			emailService.sendEmail(emailsList, subject, msg);
+			emailService.sendEmail(dto.getEmailsList(), dto.getSubject(), dto.getMsg());
 			
 			return ResponseEntity.ok("Processo de envio concluído");
 			
